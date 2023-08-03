@@ -121,13 +121,19 @@ class NoDML:
     def __init__(self, user_id):
         self.user_id = user_id
 
-    def runTask(self, tasks):
+    async def runTask(self, event, tasks):
         if tasks:
             old_live_value = tasks.old_live
-            print(old_live_value)
-            bool_reverse = True if old_live_value == 1 else False
-            # async for message in event.client.iter_messages(tasks.from_user, reverse=True):
-            # print(tasks)
+            bool_reverse = True if old_live_value == "old" else False
+            limit_msg = tasks.limit if tasks.limit != 0 else None
+            offset_msg = tasks.min_id if tasks.min_id != 0 else None
+            print(bool_reverse, limit_msg, offset_msg)
+            # async for message in event.client.iter_messages(
+            #     tasks.from_entity, 
+            #     reverse=bool_reverse, 
+            #     limit=limit_msg, 
+            #     min_id=offset_msg):
+            #     print(tasks)
         
 
 

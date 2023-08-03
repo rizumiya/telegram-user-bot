@@ -1,6 +1,8 @@
 import config
 import logging
+
 from telethon import TelegramClient
+from telethon.tl import types
 
 
 class TeleClient:
@@ -10,6 +12,7 @@ class TeleClient:
         self.phone_no = config.PHONE_NUMBER
         self.bot_token = config.BOT_TOKEN
         self.session = config.SESSION
+        self.client = None
 
     def send_message_to_user(self, user_id):
         sndmsg = config.SendMessage(user_id, None, None, False, None)
@@ -18,7 +21,7 @@ class TeleClient:
     def show_log(self):
         logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s', 
                             level=logging.INFO)
-
+           
     def connect_acc(self, log=False):
         if log:
             self.show_log()
@@ -37,3 +40,16 @@ class TeleClient:
             self.client.start(self.phone_no)
 
         return self.client
+
+    async def handle_check_entity(self, event, entity_id):
+        entity_id = int(entity_id)
+        entity = await event.client.get_entity(entity_id)
+        
+        if isinstance(entity, types.User):
+            return "User"
+        elif isinstance(entity, types.Chat):
+            return "Chat"
+        elif isinstance(entity, types.Channel):
+            return "Channel"
+        else:
+            return "Invalid Entity"
