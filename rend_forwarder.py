@@ -43,7 +43,7 @@ import re
 
 from module import downloading_media, forwarding_message, sending_message, turning_anon
 from helper import helper_menu, helper_db, database
-import config
+import autogram_userbot.config as config
 
 api_id = config.API_ID
 api_hash = config.API_HASH
