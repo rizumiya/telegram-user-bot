@@ -31,16 +31,16 @@ async def handle_tasks(event):
         if not tasks:
             sndmsg.message = "**Current Task**\n\nNo Task"
         else:
-            tasks = tasks[0]
-            use_this = "yes" if tasks[1] == 1 else "no"
-            sndmsg.message = (
-                f"**Current Task**\n\n"
-                f"Task Name : `{tasks[4]}`\n"
-                f"From Entity : __{tasks[5]}__\n"
-                f"Task Type : **{tasks[2]}**\n"
-                f"Use This : **{use_this}**\n"
-                f"Status : {tasks[3]}\n"
-                f"- - - - - - - - - - - - - -\n"
+            sndmsg.message = f"**Current Task**\n\n"
+            for task in tasks:
+                use_this = "yes" if task[1] == 1 else "no"
+                sndmsg.message += (
+                    f"Task Name : `{task[4]}`\n"
+                    f"From Entity : __{task[5]}__\n"
+                    f"Task Type : **{task[2]}**\n"
+                    f"Use This : **{use_this}**\n"
+                    f"Status : {task[3]}\n"
+                    f"- - - - - - - - - - - - - -\n"
                 )
         await send_msg.send_message_normal(event, sndmsg)
 
@@ -55,10 +55,10 @@ async def handle_add_task(event):
     if func.checkUser():
         input_user = event.message.text.strip().split()
         if len(input_user) >= 7 and input_user[0] == '/addtask':
-            conn_name, from_entity, use_this, old_live, min_id, limit, *from_user = input_user[1:]
+            conn_name, from_entity, use_this_str, old_live, min_id, limit, *from_user = input_user[1:]
             # Default nilai jika input user bermasalah
             from_user = from_user[0] if from_user else None
-            use_this = 1 if use_this and use_this[0] == "yes" else 0
+            use_this = 1 if use_this_str.lower() == "yes" else 0
             limit = limit[0] if limit != 0 else 0
 
             task = config.NewTask(conn_name, old_live, from_entity, use_this, min_id, limit)
