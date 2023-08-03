@@ -115,3 +115,43 @@ async def handle_add_filter(event):
                 sndmsg.message = f"New filter added" if result else f"Filter already exists"
             
             await send_msg.send_message_normal(event, sndmsg)
+
+
+# Mengubah use_this task
+@events.register(events.NewMessage(func=lambda event: event.message.text.startswith('/use')))
+async def handle_use(event):
+    user_id = event.sender_id
+    sndmsg = config.SendMessage(user_id, None, None, False, None)
+    func = mefuc.DML_handle(user_id)
+
+    if func.checkUser():
+        input_user = event.message.text.strip().split()
+        if len(input_user) >= 3 and input_user[0] == '/use':
+            kind, connName_filterno, *conn_name = input_user[1:]
+            conn_name = conn_name[0] if conn_name else None
+
+            result = func.updateTaskorFilter(kind, connName_filterno, conn_name)
+            sndmsg.message = f"{kind} Updated" if result else f"Error, cannot use {kind}"
+            await send_msg.send_message_normal(event, sndmsg)
+
+
+# Menjalankan seluruh task
+@events.register(events.NewMessage(func=lambda event: event.message.text.startswith('/run')))
+async def handle_run(event):
+    user_id = event.sender_id
+    sndmsg = config.SendMessage(user_id, None, None, False, None)
+    func = mefuc.DML_handle(user_id)
+    func2 = mefuc.NoDML(user_id)
+    
+    if func.checkUser():
+        input_user = event.message.text.strip().split()
+        if len(input_user) >= 1 and input_user[0] == '/run':
+            task_name = input_user[1] if input_user else None
+            runtask = func.getTaskFromConn_Name(task_name)
+            print(runtask)
+
+            tasks = config.NewTask(runtask[1], runtask[2], runtask[3], 1, runtask[5], runtask[6])
+            tasks.from_user = runtask[3]
+
+            func2.runTask(tasks)
+            # func.changeRunVal()

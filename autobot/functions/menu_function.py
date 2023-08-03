@@ -123,7 +123,11 @@ class NoDML:
 
     def runTask(self, tasks):
         if tasks:
-            print("test")
+            old_live_value = tasks.old_live
+            print(old_live_value)
+            bool_reverse = True if old_live_value == 1 else False
+            # async for message in event.client.iter_messages(tasks.from_user, reverse=True):
+            # print(tasks)
         
 
 
