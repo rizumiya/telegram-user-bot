@@ -43,13 +43,15 @@ class TeleClient:
 
     async def handle_check_entity(self, event, entity_id):
         entity_id = int(entity_id)
-        entity = await event.client.get_entity(entity_id)
-        
-        if isinstance(entity, types.User):
-            return "User"
-        elif isinstance(entity, types.Chat):
-            return "Chat"
-        elif isinstance(entity, types.Channel):
-            return "Channel"
-        else:
-            return "Invalid Entity"
+        try:
+            entity = await event.client.get_entity(entity_id)
+            if isinstance(entity, types.User):
+                print("User") 
+            elif isinstance(entity, types.Chat):
+                print("Chat") 
+            elif isinstance(entity, types.Channel):
+                print("Channel") 
+            else:
+                print("Invalid Entity") 
+        except Exception as e:
+            print ("Invalid Entity", e)

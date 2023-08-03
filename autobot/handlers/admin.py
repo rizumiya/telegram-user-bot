@@ -152,7 +152,8 @@ async def handle_run(event):
 
             tasks = config.NewTask(runtask[1], runtask[2], runtask[3], 1, runtask[5], runtask[6])
             # tasks.from_user = runtask[3]
-            print(runtask[3], await client.TeleClient.handle_check_entity(client.TeleClient, event, runtask[3]))
+            # Cek id / entity
+            await client.TeleClient.handle_check_entity(client.TeleClient, event, runtask[3])
 
             await func2.runTask(event, tasks)
             # func.changeRunVal()
