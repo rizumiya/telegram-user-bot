@@ -148,7 +148,7 @@ async def handle_run(event):
         if len(input_user) >= 1 and input_user[0] == '/run':
             task_name = input_user[1] if input_user else None
             runtask = func.getTaskFromConn_Name(task_name)
-            print(runtask)
+            # print(runtask)
 
             tasks = config.NewTask(runtask[1], runtask[2], runtask[3], 1, runtask[5], runtask[6])
             # tasks.from_user = runtask[3]
