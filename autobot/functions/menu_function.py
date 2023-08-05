@@ -116,24 +116,86 @@ class DML_handle:
             return taskData
         return None
 
+    def get_recipient(self, con_name):
+        _, userData = self.get_id_user()
+        db_umum = dbh.DB_Umum()
+        db_umum.fields = ["tr.id", "tr.task_to", "tr.task_reply"]
+        db_umum.table_name = (
+            "task_recipients AS tr "
+            "JOIN user_tasks AS ut ON tr.id_task = ut.id "
+            "JOIN detailed_tasks AS dt ON dt.id = ut.id_detailtask "
+            "JOIN users ON users.id = ut.id_user"
+        )
+        db_umum.condition = "ut.id_user=? AND dt.conn_name=?"
+        db_umum.values = [userData[0], con_name]
+        rows = db_umum.getDataFrom()
+        return rows
+
 
 class NoDML:
     def __init__(self, user_id):
         self.user_id = user_id
 
     async def runTask(self, event, tasks):
+        dml = DML_handle(self.user_id)
+
         if tasks:
             old_live_value = tasks.old_live
             bool_reverse = True if old_live_value == "old" else False
             limit_msg = tasks.limit if tasks.limit != 0 else None
             offset_msg = tasks.min_id if tasks.min_id != 0 else None
-            print(bool_reverse, limit_msg, offset_msg)
-            # async for message in event.client.iter_messages(
-            #     tasks.from_entity, 
-            #     reverse=bool_reverse, 
-            #     limit=limit_msg, 
-            #     min_id=offset_msg):
-            #     print(tasks)
+            recipients = dml.get_recipient(tasks.conn_name)
+
+            print(bool_reverse, limit_msg, offset_msg, len(recipients))
+            async for message in event.client.iter_messages(
+                int(tasks.from_entity), 
+                reverse=bool_reverse, 
+                limit=limit_msg, 
+                min_id=offset_msg):
+                
+                for recipient in recipients:
+                    reply_to = recipient[2] if recipient[2] != None else None
+                    if message.photo:
+                        print(event.grouped_id)
+                        if message.grouped_id != None:
+                            print(message.stringify())
+                            album_id = event.grouped_id
+                            media_album.append(message.photo)
+                        elif message.grouped_id != album_id:
+                            await event.client.send_file(recipient[1], file=media_album, reply_to=reply_to)
+                            media_album = []
+                            album_id = event.grouped_id
+                            if message.grouped_id != None:
+                                media_album.append(message.photo)
+                            else:
+                                await event.client.send_file(recipient[1], file=message.photo, reply_to=reply_to)
+                        else:
+                            if media_album:
+                                await event.client.send_file(recipient[1], file=media_album, reply_to=reply_to)
+                                media_album = []
+                            await event.client.send_file(recipient[1], file=message.photo, reply_to=reply_to)
+
+
+                # if message.video:
+                #     print(event.grouped_id)
+                #     if message.grouped_id != None:
+                #         print(message.stringify())
+                #         album_id = event.grouped_id
+                #         media_album.append(message.video)
+                #     elif message.grouped_id != album_id:
+                #         await event.client.send_file(to_entity, file=media_album, reply_to=reply_to)
+                #         media_album = []
+                #         album_id = event.grouped_id
+                #         if message.grouped_id != None:
+                #             media_album.append(message.video)
+                #         else:
+                #             await event.client.send_file(to_entity, file=message.video, reply_to=reply_to)
+                #     else:
+                #         if media_album:
+                #             await event.client.send_file(to_entity, file=media_album, reply_to=reply_to)
+                #             media_album = []
+                #         await event.client.send_file(to_entity, file=message.video, reply_to=reply_to)
+                # print(tasks)
         
 
 

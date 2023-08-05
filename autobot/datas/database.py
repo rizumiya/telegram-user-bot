@@ -62,7 +62,7 @@ class Database:
         
         self.cursor.execute('''CREATE TABLE IF NOT EXISTS task_recipients (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            id_detailtask int null,
+                            id_task int null,
                             task_to text null,
                             task_reply text null
                         )''')

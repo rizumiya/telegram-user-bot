@@ -1,8 +1,6 @@
 from datas import database as db
 import config as cfg
 
-from typing import Union
-
 
 class DB_Umum:
     def __init__(self):
@@ -180,9 +178,10 @@ class DB_Recipient(DB_Umum):
         _, taskData = db_task.checkAndGetTask()
         id_detailtask = taskData[0][0]
         self.table_name = "task_recipients"
-        self.fields = ["id_detailtask", "task_to", "task_reply"]
+        self.fields = ["id_task", "task_to", "task_reply"]
         self.values = (id_detailtask, self.var.to_user, self.var.reply_to)
         self.insertNewData()
+
 
 
 class DB_Filter(DB_Umum):
