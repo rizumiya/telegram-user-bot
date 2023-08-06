@@ -135,6 +135,38 @@ async def handle_use(event):
             await send_msg.send_message_normal(event, sndmsg)
 
 
+# Menampilkan tutorial
+@events.register(events.NewMessage(func=lambda event: event.message.text.startswith('/help')))
+async def handle_help(event):
+    user_id = event.sender_id
+    sndmsg = config.SendMessage(user_id, None, None, False, None)
+    func = mefuc.DML_handle(user_id)
+    func2 = mefuc.NoDML(user_id)
+
+    if func.checkUser():
+        message = func2.showHelp()
+        sndmsg.message = message
+        await send_msg.send_message_normal(event, sndmsg)
+
+
+# Menampilkan list channel / chat
+@events.register(events.NewMessage(func=lambda event: event.message.text.startswith('/showid')))
+async def handle_show_id(event):
+    user_id = event.sender_id
+    sndmsg = config.SendMessage(user_id, None, None, False, None)
+    func = mefuc.DML_handle(user_id)
+    dialogs = event.client.get_dialogs()
+
+    if func.checkUser():
+        message = "Show all id channels and chats : \n\n"
+        for dialog in dialogs:
+            if dialog.is_channel or dialog.is_group:
+                message += f"ID: {dialog.id} | Nama: {dialog.title}"
+        
+        sndmsg.message = message
+        await send_msg.send_message_normal(event, sndmsg)
+
+
 # Menjalankan seluruh task
 @events.register(events.NewMessage(func=lambda event: event.message.text.startswith('/run')))
 async def handle_run(event):
@@ -153,7 +185,7 @@ async def handle_run(event):
             tasks = config.NewTask(runtask[1], runtask[2], runtask[3], 1, runtask[5], runtask[6])
             # tasks.from_user = runtask[3]
             # Cek id / entity
-            await client.TeleClient.handle_check_entity(client.TeleClient, event, runtask[3])
+            # await client.TeleClient.handle_check_entity(client.TeleClient, event, runtask[3])
 
             await func2.runTask(event, tasks)
             

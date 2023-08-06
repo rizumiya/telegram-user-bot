@@ -12,5 +12,7 @@ with client as ttloli:
     ttloli.add_event_handler(admin.handle_add_filter)
     ttloli.add_event_handler(admin.handle_use)
     ttloli.add_event_handler(admin.handle_run)
+    ttloli.add_event_handler(admin.handle_help)
+    ttloli.add_event_handler(admin.handle_show_id)
 
     ttloli.run_until_disconnected()

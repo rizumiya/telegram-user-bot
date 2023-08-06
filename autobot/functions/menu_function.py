@@ -142,61 +142,93 @@ class NoDML:
         if tasks:
             old_live_value = tasks.old_live
             bool_reverse = True if old_live_value == "old" else False
-            limit_msg = tasks.limit if tasks.limit != 0 else 0
+            limit_msg = int(tasks.limit) if int(tasks.limit) != 0 else 0
             offset_msg = tasks.min_id if tasks.min_id != 0 else 0
             recipients = dml.get_recipient(tasks.conn_name)
+
             album_id = None
             media_album = []
-
             from_entity = int(tasks.from_entity)
-            # print(bool_reverse, limit_msg, offset_msg, recipients, from_entity)
-            print("# Start forwarding media from id : " + str(tasks.from_entity)) 
+            
+            # Perulangan untuk setiap recipient
             for recipient in recipients:
                 send_to = int(recipient[1])
                 reply_to = int(recipient[2]) if recipient[2] != None else None
-                async for message in event.client.iter_messages(from_entity,reverse=bool_reverse,min_id=offset_msg):
-                    if message.photo:
-                        print(event.grouped_id)
-                        if message.grouped_id != None:
-                            # print(message.stringify())
-                            album_id = event.grouped_id
-                            media_album.append(message.photo)
-                        elif message.grouped_id != album_id:
-                            await event.client.send_file(send_to, file=media_album, reply_to=reply_to)
-                            media_album = []
-                            album_id = event.grouped_id
+                count_msg = 0  # Reset count_msg untuk setiap recipient
+                async for message in event.client.iter_messages(from_entity, reverse=bool_reverse, min_id=offset_msg):
+                    if count_msg != limit_msg:
+                        # Kode untuk mengirim file foto
+                        if message.photo:
                             if message.grouped_id != None:
+                                album_id = event.grouped_id
                                 media_album.append(message.photo)
-                            else:
-                                await event.client.send_file(send_to, file=message.photo, reply_to=reply_to)
-                        else:
-                            if media_album:
+                                count_msg += 1
+                            elif message.grouped_id != album_id:
                                 await event.client.send_file(send_to, file=media_album, reply_to=reply_to)
                                 media_album = []
-                            await event.client.send_file(send_to, file=message.photo, reply_to=reply_to)
+                                album_id = event.grouped_id
+                                count_msg += 1
+                                if message.grouped_id != None:
+                                    media_album.append(message.photo)
+                                    count_msg += 1
+                                else:
+                                    await event.client.send_file(send_to, file=message.photo, reply_to=reply_to)
+                                    count_msg += 1
+                            else:
+                                if media_album:
+                                    await event.client.send_file(send_to, file=media_album, reply_to=reply_to)
+                                    media_album = []
+                                    count_msg += 1
+                                await event.client.send_file(send_to, file=message.photo, reply_to=reply_to)
+                                count_msg += 1
+                        # Kode untuk mengirim file video
+                        # if message.video:
+                        #     if message.grouped_id != None:
+                        #         album_id = event.grouped_id
+                        #         media_album.append(message.video)
+                        #         count_msg += 1
+                        #     elif message.grouped_id != album_id:
+                        #         await event.client.send_file(send_to, file=media_album, reply_to=reply_to)
+                        #         media_album = []
+                        #         album_id = event.grouped_id
+                        #         count_msg += 1
+                        #         if message.grouped_id != None:
+                        #             media_album.append(message.video)
+                        #             count_msg += 1
+                        #         else:
+                        #             await event.client.send_file(send_to, file=message.video, reply_to=reply_to)
+                        #             count_msg += 1
+                        #     else:
+                        #         if media_album:
+                        #             await event.client.send_file(send_to, file=media_album, reply_to=reply_to)
+                        #             media_album = []
+                        #             count_msg += 1
+                        #         await event.client.send_file(send_to, file=message.video, reply_to=reply_to)
+                        #         count_msg += 1
+                    else:
+                        if media_album:
+                            await event.client.send_file(send_to, file=media_album, reply_to=reply_to)
+                            media_album = []
+                            count_msg += 1
 
-            print("Selesai..")
-                # if message.video:
-                #     print(event.grouped_id)
-                #     if message.grouped_id != None:
-                #         print(message.stringify())
-                #         album_id = event.grouped_id
-                #         media_album.append(message.video)
-                #     elif message.grouped_id != album_id:
-                #         await event.client.send_file(to_entity, file=media_album, reply_to=reply_to)
-                #         media_album = []
-                #         album_id = event.grouped_id
-                #         if message.grouped_id != None:
-                #             media_album.append(message.video)
-                #         else:
-                #             await event.client.send_file(to_entity, file=message.video, reply_to=reply_to)
-                #     else:
-                #         if media_album:
-                #             await event.client.send_file(to_entity, file=media_album, reply_to=reply_to)
-                #             media_album = []
-                #         await event.client.send_file(to_entity, file=message.video, reply_to=reply_to)
-                # print(tasks)
+                print("Selesai..")
         
+    def showHelp(self):
+        print("test")
+        message = "**Help** \n\n"
+        message += (
+            "**Adding task** : \n"
+            "format : `/addtask conn_1 123456789 yes old 0 0` \n"
+            "detail : after word __/addtask__\n"
+            "- [connection name: text] \n"
+            "- [from id: number] \n"
+            "- [use this: yes/no] \n"
+            "- [type: old/live] \n"
+            "- [limit: number] \n"
+            "- [offset: number]\n"
+            )
+
+        return message
 
 
 
