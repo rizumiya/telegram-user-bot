@@ -143,7 +143,7 @@ class NoDML:
             old_live_value = tasks.old_live
             bool_reverse = True if old_live_value == "old" else False
             limit_msg = int(tasks.limit) if int(tasks.limit) != 0 else 0
-            offset_msg = int(tasks.min_id) if tasks.min_id != 0 else 0
+            offset_msg = tasks.min_id if tasks.min_id != 0 else 0
             recipients = dml.get_recipient(tasks.conn_name)
 
             album_id = None
@@ -156,11 +156,12 @@ class NoDML:
                 reply_to = int(recipient[2]) if recipient[2] != None else None
                 count_msg = 1  # Reset count_msg untuk setiap recipient
                 async for message in event.client.iter_messages(from_entity, reverse=bool_reverse, offset_id=offset_msg):
-                    print(message.id)
-                    if limit_msg == 0 or count_msg <= limit_msg:
+                    
+                    if count_msg <= limit_msg: # kalo limit = 0 error
+                        print(message.id)
                         # Kode untuk mengirim file foto
                         if message.photo:
-                            if message.grouped_id != None:
+                            if message.grouped_id != None :
                                 if message.grouped_id != album_id and media_album:
                                     await event.client.send_file(send_to, file=media_album, reply_to=reply_to)
                                     media_album = []
@@ -185,7 +186,6 @@ class NoDML:
                                     count_msg += 1
                                 await event.client.send_file(send_to, file=message.photo, reply_to=reply_to)
                                 count_msg += 1
-
                         # Kode untuk mengirim file video
                         # if message.video:
                         #     if message.grouped_id != None:
@@ -233,8 +233,8 @@ class NoDML:
             "- [from id: number] \n"
             "- [use this: yes/no] \n"
             "- [type: old/live] \n"
-            "- [offset: number]\n"
             "- [limit: number] \n"
+            "- [offset: number]\n"
             )
 
         return message

@@ -39,6 +39,8 @@ async def handle_tasks(event):
                     f"From Entity : __{task[5]}__\n"
                     f"Task Type : **{task[2]}**\n"
                     f"Use This : **{use_this}**\n"
+                    f"Min id : __{task[7]}__\n"
+                    f"Limit : **{task[8]}**\n"
                     f"Status : {task[3]}\n"
                     f"- - - - - - - - - - - - - -\n"
                 )
@@ -59,7 +61,7 @@ async def handle_add_task(event):
             # Default nilai jika input user bermasalah
             from_user = from_user[0] if from_user else None
             use_this = 1 if use_this_str.lower() == "yes" else 0
-            limit = limit[0] if limit != 0 else 0
+            limit = int(limit) if limit != 0 else '0'
 
             task = config.NewTask(conn_name, old_live, from_entity, use_this, min_id, limit)
             task.from_user = from_user
