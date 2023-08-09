@@ -137,35 +137,40 @@ class NoDML:
         self.user_id = user_id
         self.media_album = []
         self.album_id = None
+        self.send_to = None
+        self.reply_to = None
 
     async def send_iter_message(self, event):
         await event.client.send_file(self.send_to, file=self.media_album, reply_to=self.reply_to)
     
-    async def photo_message(self, event, message):
+    async def send_message(self, event, file, message):
         if message.grouped_id != None:
             if message.grouped_id != self.album_id and self.media_album:
-                await self.send_iter_message()
+                await self.send_iter_message(event)
                 self.media_album = []
             self.album_id = message.grouped_id
-            self.media_album.append(message.photo)
+            self.media_album.append(file)
         elif message.grouped_id != self.album_id:
-            await self.send_iter_message()
+            await self.send_iter_message(event)
             self.media_album = []
             self.album_id = message.grouped_id
             if message.grouped_id != None:
-                self.media_album.append(message.photo)
+                self.media_album.append(file)
             else:
-                await self.send_iter_message()
+                await event.client.send_file(self.send_to, file=file, reply_to=self.reply_to)
         else:
             if self.media_album:
-                await self.send_iter_message()
+                await self.send_iter_message(event)
                 self.media_album = []
-            await self.send_iter_message()
+            await event.client.send_file(self.send_to, file=file, reply_to=self.reply_to)
 
     async def run_iter_message(self, event, **kwargs):
         async for message in event.client.iter_messages(**kwargs):
+            print(message.id)
             if message.photo:
-                self.photo_message(event, message)
+                await self.send_message(event, message.photo, message)
+            if message.video:
+                await self.send_message(event, message.video, message)
 
     async def runTask(self, event, tasks):
         dml = DML_handle(self.user_id)
@@ -177,8 +182,6 @@ class NoDML:
             offset_msg = int(tasks.min_id) if tasks.min_id != 0 else 0
             recipients = dml.get_recipient(tasks.conn_name)
 
-            album_id = None
-            media_album = []
             from_entity = int(tasks.from_entity)
             
             # Perulangan untuk setiap recipient
@@ -192,6 +195,7 @@ class NoDML:
                     limit=limit_msg,
                     min_id=offset_msg
                 )
+
 
 
 
