@@ -135,6 +135,37 @@ class DML_handle:
 class NoDML:
     def __init__(self, user_id):
         self.user_id = user_id
+        self.media_album = []
+        self.album_id = None
+
+    async def send_iter_message(self, event):
+        await event.client.send_file(self.send_to, file=self.media_album, reply_to=self.reply_to)
+    
+    async def photo_message(self, event, message):
+        if message.grouped_id != None:
+            if message.grouped_id != self.album_id and self.media_album:
+                await self.send_iter_message()
+                self.media_album = []
+            self.album_id = message.grouped_id
+            self.media_album.append(message.photo)
+        elif message.grouped_id != self.album_id:
+            await self.send_iter_message()
+            self.media_album = []
+            self.album_id = message.grouped_id
+            if message.grouped_id != None:
+                self.media_album.append(message.photo)
+            else:
+                await self.send_iter_message()
+        else:
+            if self.media_album:
+                await self.send_iter_message()
+                self.media_album = []
+            await self.send_iter_message()
+
+    async def run_iter_message(self, event, **kwargs):
+        async for message in event.client.iter_messages(**kwargs):
+            if message.photo:
+                self.photo_message(event, message)
 
     async def runTask(self, event, tasks):
         dml = DML_handle(self.user_id)
@@ -142,7 +173,7 @@ class NoDML:
         if tasks:
             old_live_value = tasks.old_live
             bool_reverse = True if old_live_value == "old" else False
-            limit_msg = int(tasks.limit) if int(tasks.limit) != 0 else 0
+            limit_msg = int(tasks.limit) if int(tasks.limit) != 0 else None
             offset_msg = int(tasks.min_id) if tasks.min_id != 0 else 0
             recipients = dml.get_recipient(tasks.conn_name)
 
@@ -152,73 +183,75 @@ class NoDML:
             
             # Perulangan untuk setiap recipient
             for recipient in recipients:
-                send_to = int(recipient[1])
-                reply_to = int(recipient[2]) if recipient[2] != None else None
-                count_msg = 1  # Reset count_msg untuk setiap recipient
-                async for message in event.client.iter_messages(from_entity, reverse=bool_reverse, offset_id=offset_msg):
-                    print(message.id)
-                    if limit_msg == 0 or count_msg <= limit_msg:
-                        # Kode untuk mengirim file foto
-                        if message.photo:
-                            if message.grouped_id != None:
-                                if message.grouped_id != album_id and media_album:
-                                    await event.client.send_file(send_to, file=media_album, reply_to=reply_to)
-                                    media_album = []
-                                album_id = message.grouped_id
-                                media_album.append(message.photo)
-                                count_msg += 1
-                            elif message.grouped_id != album_id:
-                                await event.client.send_file(send_to, file=media_album, reply_to=reply_to)
-                                media_album = []
-                                album_id = message.grouped_id
-                                count_msg += 1
-                                if message.grouped_id != None:
-                                    media_album.append(message.photo)
-                                    count_msg += 1
-                                else:
-                                    await event.client.send_file(send_to, file=message.photo, reply_to=reply_to)
-                                    count_msg += 1
-                            else:
-                                if media_album:
-                                    await event.client.send_file(send_to, file=media_album, reply_to=reply_to)
-                                    media_album = []
-                                    count_msg += 1
-                                await event.client.send_file(send_to, file=message.photo, reply_to=reply_to)
-                                count_msg += 1
+                self.send_to = int(recipient[1])
+                self.reply_to = int(recipient[2]) if recipient[2] != None else None
+                await self.run_iter_message(
+                    event,
+                    entity=from_entity,
+                    reverse=bool_reverse,
+                    limit=limit_msg,
+                    min_id=offset_msg
+                )
 
-                        # Kode untuk mengirim file video
-                        # if message.video:
-                        #     if message.grouped_id != None:
-                        #         if message.grouped_id != album_id and media_album:
-                        #             await event.client.send_file(send_to, file=media_album, reply_to=reply_to)
-                        #             media_album = []
-                        #         album_id = message.grouped_id
-                        #         media_album.append(message.video)
-                        #         count_msg += 1
-                        #     elif message.grouped_id != album_id:
-                        #         await event.client.send_file(send_to, file=media_album, reply_to=reply_to)
-                        #         media_album = []
-                        #         album_id = message.grouped_id
-                        #         count_msg += 1
-                        #         if message.grouped_id != None:
-                        #             media_album.append(message.video)
-                        #             count_msg += 1
-                        #         else:
-                        #             await event.client.send_file(send_to, file=message.video, reply_to=reply_to)
-                        #             count_msg += 1
-                        #     else:
-                        #         if media_album:
-                        #             await event.client.send_file(send_to, file=media_album, reply_to=reply_to)
-                        #             media_album = []
-                        #             count_msg += 1
-                        #         await event.client.send_file(send_to, file=message.video, reply_to=reply_to)
-                        #         count_msg += 1
-                    else:
-                        if media_album:
-                            await event.client.send_file(send_to, file=media_album, reply_to=reply_to)
-                            media_album = []
-                            count_msg += 1
-                            print(message.id)
+
+
+                # async for message in event.client.iter_messages(
+                #     from_entity, 
+                #     reverse=bool_reverse, 
+                #     offset_id=offset_msg, 
+                #     limit=limit_msg,
+                #     min_id=offset_msg):
+                #     print(message.id)
+                #     # Kode untuk mengirim file foto
+                #     if message.photo:
+                #         if message.grouped_id != None:
+                #             if message.grouped_id != album_id and media_album:
+                #                 await event.client.send_file(send_to, file=media_album, reply_to=reply_to)
+                #                 media_album = []
+                #             album_id = message.grouped_id
+                #             media_album.append(message.photo)
+                #         elif message.grouped_id != album_id:
+                #             await event.client.send_file(send_to, file=media_album, reply_to=reply_to)
+                #             media_album = []
+                #             album_id = message.grouped_id
+                #             if message.grouped_id != None:
+                #                 media_album.append(message.photo)
+                #             else:
+                #                 await event.client.send_file(send_to, file=message.photo, reply_to=reply_to)
+                #         else:
+                #             if media_album:
+                #                 await event.client.send_file(send_to, file=media_album, reply_to=reply_to)
+                #                 media_album = []
+                #             await event.client.send_file(send_to, file=message.photo, reply_to=reply_to)
+
+                    # Kode untuk mengirim file video
+                    # if message.video:
+                    #     if message.grouped_id != None:
+                    #         if message.grouped_id != album_id and media_album:
+                    #             await event.client.send_file(send_to, file=media_album, reply_to=reply_to)
+                    #             media_album = []
+                    #         album_id = message.grouped_id
+                    #         media_album.append(message.video)
+                    #         count_msg += 1
+                    #     elif message.grouped_id != album_id:
+                    #         await event.client.send_file(send_to, file=media_album, reply_to=reply_to)
+                    #         media_album = []
+                    #         album_id = message.grouped_id
+                    #         count_msg += 1
+                    #         if message.grouped_id != None:
+                    #             media_album.append(message.video)
+                    #             count_msg += 1
+                    #         else:
+                    #             await event.client.send_file(send_to, file=message.video, reply_to=reply_to)
+                    #             count_msg += 1
+                    #     else:
+                    #         if media_album:
+                    #             await event.client.send_file(send_to, file=media_album, reply_to=reply_to)
+                    #             media_album = []
+                    #             count_msg += 1
+                    #         await event.client.send_file(send_to, file=message.video, reply_to=reply_to)
+                    #         count_msg += 1
+                    
 
                 print("Selesai..")
         
