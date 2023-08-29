@@ -175,7 +175,6 @@ class NoDML:
         sent = 0
         max_iter = limit_msg
         async for message in event.client.iter_messages(**kwargs):
-            print("id : ",message.id)
             if message.photo:
                 sent += 1
                 await self.send_message(event, message.photo, message)
@@ -185,8 +184,7 @@ class NoDML:
             elif message.video:
                 sent += 1
                 await self.send_message(event, message.video, message)
-            
-            print("sent : ", sent)
+
             await dml.update_minid_limit(con_name, message.id)
             if max_iter > 0 and sent >= max_iter:
                 break 

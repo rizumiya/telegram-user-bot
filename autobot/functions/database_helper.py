@@ -166,7 +166,6 @@ class DB_Task(DB_Umum):
     def changeMinID(self, min_id):
         _, taskData = self.checkAndGetTask()
         self.table_name = "detailed_tasks"
-        print("limit : ", taskData[0][6])
         if taskData[0][6] > 0:
             self.fields = ["task_min_id", "task_limit"]
             self.values = [min_id, taskData[0][6] - 1]
