@@ -1,24 +1,31 @@
 from telethon import events
-from telethon.tl.functions.messages import AddChatUserRequest
-from telethon.tl.functions.contacts import GetContactsRequest
+from telethon.tl.types import InputPhoneContact
+from telethon.tl.functions.contacts import ImportContactsRequest
 
 import config
 from functions import menu_function as mefuc, send_message as send_msg
 from . import client
 
 
-# Mendaftarkan user sebagai admin
+# Mendaftarkan sebagai admin
 @events.register(events.NewMessage(pattern="/add me"))
 async def handle_add_user(event):
     user_id = event.sender_id
-
-    contacts = client(GetContactsRequest(''))
-    user = contacts.users[0]
-    await client(AddChatUserRequest(chat_id=user_id, user_id=user, fwd_limit=10))
-
     sndmsg = client.TeleClient.send_message_to_user(client.TeleClient, user_id)
 
     if event.is_private and not event.via_bot_id:
+        input_user = event.message.text.strip().split()
+        if len(input_user) > 2 and input_user[0] == '/add':    
+            _, *number = input_user[1:]
+            phone_no = number[0] if number else None
+            result = await event.client(ImportContactsRequest(
+                contacts=[InputPhoneContact(
+                    client_id=0,
+                    phone=phone_no,
+                    first_name='new',
+                    last_name='user'
+                )]
+            ))
         func = mefuc.DML_handle(user_id)
         result = func.addUserAndSetting()
 
