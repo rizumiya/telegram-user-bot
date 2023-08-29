@@ -163,6 +163,15 @@ class DB_Task(DB_Umum):
         self.condition_values = [taskData[0][0]]
         self.changeDataFromId()
 
+    def changeMinID(self, min_id, sent):
+        _, taskData = self.checkAndGetTask()
+        self.table_name = "detailed_tasks"
+        self.fields = ["task_min_id", "task_limit"]
+        print(taskData[0][6])
+        self.values = [min_id, taskData[0][6] - sent]
+        self.condition = "id=?"
+        self.condition_values = [taskData[0][0]]
+        self.changeDataFromId()
 
 class DB_Recipient(DB_Umum):
     def __init__(self, id_user):

@@ -131,6 +131,11 @@ class DML_handle:
         rows = db_umum.getDataFrom()
         return rows
 
+    async def update_minid_limit(self, con_name, min_id, sent):
+        _, userData = self.get_id_user()
+        db_task = dbh.DB_Task(userData[0])
+        db_task.var.conn_name = con_name
+        db_task.changeMinID(min_id, sent)
 
 class NoDML:
     def __init__(self, user_id):
@@ -164,13 +169,26 @@ class NoDML:
                 self.media_album = []
             await event.client.send_file(self.send_to, file=file, reply_to=self.reply_to)
 
-    async def run_iter_message(self, event, **kwargs):
+    # Proses filtering pesan
+    async def run_iter_message(self, event, con_name, limit_msg, **kwargs):
+        dml = DML_handle(self.user_id)
+        sent = 0
+        max_iter = limit_msg
         async for message in event.client.iter_messages(**kwargs):
             print(message.id)
             if message.photo:
+                sent += 1
                 await self.send_message(event, message.photo, message)
+            if message.sticker:
+                sent += 1
+                await self.send_message(event, message.sticker, message)
             if message.video:
+                sent += 1
                 await self.send_message(event, message.video, message)
+            
+            await dml.update_minid_limit(con_name, message.id, sent)
+            if max_iter > 0 and sent >= max_iter:
+                break 
 
     async def runTask(self, event, tasks):
         dml = DML_handle(self.user_id)
@@ -190,9 +208,10 @@ class NoDML:
                 self.reply_to = int(recipient[2]) if recipient[2] != None else None
                 await self.run_iter_message(
                     event,
+                    tasks.conn_name,
+                    limit_msg,
                     entity=from_entity,
                     reverse=bool_reverse,
-                    limit=limit_msg,
                     min_id=offset_msg
                 )
 

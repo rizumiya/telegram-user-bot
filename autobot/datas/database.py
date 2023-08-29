@@ -66,20 +66,6 @@ class Database:
                             task_to text null,
                             task_reply text null
                         )''')
-        
-        # self.queryFilter = """
-        # INSERT OR IGNORE INTO filter_types (id, type)
-        # VALUES
-        #     (1, 'file'),
-        #     (2, 'foto'),
-        #     (3, 'gif'),
-        #     (4, 'sticker'),
-        #     (5, 'url'),
-        #     (6, 'video'),
-        #     (7, 'all')
-        # """
-
-        # self.cursor.execute(self.queryFilter)
 
         self.conn.commit()
         self.dumpSQL()
