@@ -174,20 +174,36 @@ class NoDML:
         dml = DML_handle(self.user_id)
         sent = 0
         max_iter = limit_msg
-        async for message in event.client.iter_messages(**kwargs):
-            if message.photo:
-                sent += 1
-                await self.send_message(event, message.photo, message)
-            elif message.sticker:
-                sent += 1
-                await self.send_message(event, message.sticker, message)
-            elif message.video:
-                sent += 1
-                await self.send_message(event, message.video, message)
+        exclude_strings = ["Alianzas y", "#Ava #AI"]
 
-            await dml.update_minid_limit(con_name, message.id)
-            if max_iter > 0 and sent >= max_iter:
-                break 
+        async for message in event.client.iter_messages(**kwargs):
+            should_exclude = False
+    
+            for exclude_string in exclude_strings:
+                if exclude_string in message.message:
+                    should_exclude = True
+                    break
+            
+            if not should_exclude:
+                print(message.id, sent)
+                if message.photo:
+                    sent += 1
+                    await self.send_message(event, message.photo, message)
+                elif message.sticker:
+                    sent += 1
+                    await self.send_message(event, message.sticker, message)
+                elif message.video:
+                    sent += 1
+                    await self.send_message(event, message.video, message)
+
+                await dml.update_minid_limit(con_name, message.id)
+                if max_iter > 0 and sent >= max_iter:
+                    if self.media_album:
+                        await self.send_iter_message(event)
+                        self.media_album = []
+                    break 
+
+            
 
     async def runTask(self, event, tasks):
         dml = DML_handle(self.user_id)
@@ -195,7 +211,7 @@ class NoDML:
         if tasks:
             old_live_value = tasks.old_live
             bool_reverse = True if old_live_value == "old" else False
-            limit_msg = int(tasks.limit) if int(tasks.limit) != 0 else None
+            limit_msg = int(tasks.limit) if int(tasks.limit) != 0 else 0
             offset_msg = int(tasks.min_id) if tasks.min_id != 0 else 0
             recipients = dml.get_recipient(tasks.conn_name)
 
