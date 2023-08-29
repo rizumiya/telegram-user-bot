@@ -131,11 +131,11 @@ class DML_handle:
         rows = db_umum.getDataFrom()
         return rows
 
-    async def update_minid_limit(self, con_name, min_id, sent):
+    async def update_minid_limit(self, con_name, min_id):
         _, userData = self.get_id_user()
         db_task = dbh.DB_Task(userData[0])
         db_task.var.conn_name = con_name
-        db_task.changeMinID(min_id, sent)
+        db_task.changeMinID(min_id)
 
 class NoDML:
     def __init__(self, user_id):
@@ -175,18 +175,19 @@ class NoDML:
         sent = 0
         max_iter = limit_msg
         async for message in event.client.iter_messages(**kwargs):
-            print(message.id)
+            print("id : ",message.id)
             if message.photo:
                 sent += 1
                 await self.send_message(event, message.photo, message)
-            if message.sticker:
+            elif message.sticker:
                 sent += 1
                 await self.send_message(event, message.sticker, message)
-            if message.video:
+            elif message.video:
                 sent += 1
                 await self.send_message(event, message.video, message)
             
-            await dml.update_minid_limit(con_name, message.id, sent)
+            print("sent : ", sent)
+            await dml.update_minid_limit(con_name, message.id)
             if max_iter > 0 and sent >= max_iter:
                 break 
 
