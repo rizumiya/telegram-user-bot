@@ -202,10 +202,20 @@ class DB_Filter(DB_Umum):
     
     def addTextFilter(self):
         self.table_name = "text_filters"
-        self.fields = ["regex", "text"]
+        self.fields = ["id_user", "text"]
         self.insertNewData()
 
-    def setValues(self, regex, text):
-        self.values = [regex, text]
+    def setValues(self, id_user, text):
+        self.values = [id_user, text]
+    
+    def getTextFilter(self, value):
+        self.table_name = (
+            "text_filters as tf "
+            "JOIN users ON users.id = tf.id_user"
+        )
+        self.condition = "tf.id_user=?"
+        self.values = value
+        datas = self.getDataFrom()
+        return datas
 
 

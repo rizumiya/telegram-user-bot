@@ -69,12 +69,26 @@ class DML_handle:
 
     def addNewFilter(self, filter_name, filter):
         db_filter = dbh.DB_Filter()
+        _, userData = self.get_id_user()
         if filter_name == "text":
-            db_filter.setValues(filter.regex, filter.text)
+            db_filter.setValues(userData[0], filter.text)
             db_filter.addTextFilter()
             return True
         
         return False
+    
+    def getTextFilter(self):
+        _, userData = self.get_id_user()
+        db_umum = dbh.DB_Umum()
+        db_umum.fields = ["tf.id", "tf.text"]
+        db_umum.table_name = (
+            "text_filters as tf "
+            "JOIN users ON users.id = tf.id_user"
+        )
+        db_umum.condition = "tf.id_user=?"
+        db_umum.values = [userData[0]]
+        rows = db_umum.getDataFrom()
+        return rows
 
     def getTaskFromConn_Name(self, conn_name):
         _, userData = self.get_id_user()

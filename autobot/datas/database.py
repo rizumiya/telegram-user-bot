@@ -37,26 +37,15 @@ class Database:
                             task_limit integer null
                         )''')
         
-        self.cursor.execute('''CREATE TABLE IF NOT EXISTS has_textfilters (
-                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            id_detailtask integer null,
-                            id_textfilter integer null
-                        )''')
-        
         self.cursor.execute('''CREATE TABLE IF NOT EXISTS text_filters (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            regex integer null,
+                            id_user integer null,
                             text text null
-                        )''')
-        
-        self.cursor.execute('''CREATE TABLE IF NOT EXISTS has_filtertypes (
-                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            id_detailtask integer null,
-                            id_filtertype integer null
                         )''')
         
         self.cursor.execute('''CREATE TABLE IF NOT EXISTS filter_types (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            id_user integer null,
                             type text null
                         )''')
         
