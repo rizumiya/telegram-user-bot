@@ -116,12 +116,11 @@ async def handle_add_filter(event):
     if func.checkUser():
         input_user = event.message.text.strip().split()
         if len(input_user) >= 3 and input_user[0] == '/addfilter':
-            filter_name, regext, *text_list  = input_user[1:]
+            filter_name, *text_list  = input_user[1:]
 
             if filter_name == "text":
-                regext = 1 if regext == "yes" else 0
                 texts = ' '.join(text_list) if text_list else "."
-                fltr = config.Filter(filter_type=filter_name, regex=regext, text=texts)
+                fltr = config.Filter(filter_type=filter_name, text=texts)
                 formattext = True
             else:
                 sndmsg.message = f"Choose only text / type"
@@ -131,6 +130,26 @@ async def handle_add_filter(event):
                 sndmsg.message = f"New filter added" if result else f"Filter already exists"
             
             await send_msg.send_message_normal(event, sndmsg)
+
+
+# Menampilkan list filters yang tersimpan dan aktif
+@events.register(events.NewMessage(func=lambda event: event.message.text.startswith('/filters')))
+async def handle_filters(event):
+    user_id = event.sender_id
+    sndmsg = config.SendMessage(user_id, None, None, False, None)
+    func = mefuc.DML_handle(user_id)
+    
+    if func.checkUser():
+        filters = func.getTextFilter()
+        if not filters:
+            sndmsg.message = "**Current Filters**\n\nNo Filter"
+        else:
+            sndmsg.message = f"**Current Filters**\n\nText : \n"
+            for filter in filters:
+                sndmsg.message += f"`{filter[1]}`\n"
+            sndmsg.message += "- - - - - - - - - - - - - -\n"
+
+        await send_msg.send_message_normal(event, sndmsg)
 
 
 # Mengubah use_this task

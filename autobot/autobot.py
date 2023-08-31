@@ -9,6 +9,7 @@ with client as ttloli:
     ttloli.add_event_handler(admin.handle_tasks)
     ttloli.add_event_handler(admin.handle_add_task)
     ttloli.add_event_handler(admin.handle_add_recipient)
+    ttloli.add_event_handler(admin.handle_filters)
     ttloli.add_event_handler(admin.handle_add_filter)
     ttloli.add_event_handler(admin.handle_use)
     ttloli.add_event_handler(admin.handle_run)
