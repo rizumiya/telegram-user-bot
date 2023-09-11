@@ -335,18 +335,3 @@ class DB_Recipient(DB_Umum):
         self.condition = "to_entity=?"
         self.values = [entity]
         self.delete_data()
-
-
-# class DB_Link(DB_Umum):
-#     def __init__(self, chat_id):
-#         self.chat_id = chat_id
-
-#     def get_links(self, link):
-#         self.table_name = "links"
-#         self.fields = None
-#         self.condition = "link=?"
-#         link_exist = self.read_data()
-#         if link_exist:
-#             return link_exist
-#         else:
-#             return None
