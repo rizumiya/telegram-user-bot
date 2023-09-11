@@ -1,4 +1,4 @@
-telethon==1.28.5
-cryptg==0.4.0
-python-telegram-bot==20.3
-python-dotenv==1.0.0
+telethon
+cryptg
+python-telegram-bot
+python-dotenv
