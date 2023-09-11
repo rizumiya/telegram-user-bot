@@ -1,4 +1,3 @@
-from telethon import client
 from handlers import tele_client as tcli, users, tasks, filters, recipients
 
 import os

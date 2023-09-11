@@ -2,9 +2,6 @@ import os
 import streamlit as st
 from dotenv import load_dotenv
 
-from telethon import client
-from handlers import tele_client as tcli
-
 # Set page title and favicon
 st.set_page_config(page_title='UserAutoBot WebUI', page_icon=':guardsman:')
 
