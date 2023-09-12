@@ -11,6 +11,7 @@ class TeleClient:
         self.phone_no = cfg.PHONE_NUMBER
         self.bot_token = cfg.BOT_TOKEN
         self.session = cfg.API_SESSION
+        self.loop = None
         self.client = None
 
     # Send message to user / admin
@@ -25,7 +26,7 @@ class TeleClient:
         if log:
             self.show_log()
 
-        self.client = TelegramClient(self.session, self.api_id, self.api_hash)
+        self.client = TelegramClient(self.session, self.api_id, self.api_hash, loop=self.loop)
 
         if self.bot_token:
             self.client.start(
