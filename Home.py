@@ -92,10 +92,10 @@ class WebUI:
         PHONE_NUMBER = os.getenv("PHONE_NUMBER")
         BOT_TOKEN = os.getenv("BOT_TOKEN")
         if API_ID and API_HASH and (BOT_TOKEN or PHONE_NUMBER) and API_SESSION:
-            self.api_id = API_ID
-            self.api_hash = API_HASH
-            self.bot_token = BOT_TOKEN
-            self.phone_number = PHONE_NUMBER
+            self.api_id = "API_ID"
+            self.api_hash = "API_HASH"
+            self.bot_token = "BOT_TOKEN"
+            self.phone_number = "PHONE_NUMBER"
         return False
 
 

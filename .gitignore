@@ -1,5 +1,5 @@
-# *.db
-# config.env
-# *.session
-# *.session-journal
+*.db
+config.env
+*.session
+*.session-journal
 __pycache__/
