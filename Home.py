@@ -4,7 +4,6 @@ import os
 from dotenv import load_dotenv
 
 from handlers import tele_client as tcli, users, tasks, filters, recipients
-from telethon import TelegramClient
 
 st.set_page_config(page_title='UserAutoBot WebUI', page_icon=':guardsman:')
 
