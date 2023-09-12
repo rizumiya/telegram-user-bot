@@ -1,10 +1,8 @@
-import telethon
 from handlers import tele_client as tcli, users, tasks, filters, recipients
 
 
 tclient = tcli.TeleClient()
-client = tclient.connect_account(True)
-    
+client = tclient.connect_account(True)    
 
 # Always active until it stopped
 with client as ttloli:
