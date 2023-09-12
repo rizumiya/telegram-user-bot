@@ -2,3 +2,4 @@ telethon
 cryptg
 python-telegram-bot
 python-dotenv
+streamlit

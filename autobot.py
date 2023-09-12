@@ -1,21 +1,9 @@
 import telethon
 from handlers import tele_client as tcli, users, tasks, filters, recipients
 
-import os
-import subprocess
 
 tclient = tcli.TeleClient()
 client = tclient.connect_account(True)
-
-# Ganti 'nama_file' dengan nama file yang sesuai
-file_name = os.path.join(os.path.dirname(__file__), 'autobot.db')
-
-# Jalankan perintah chmod dari Python
-try:
-    subprocess.run(['chmod', 'g+w', file_name], check=True)
-    print(f'Izin file {file_name} berhasil diubah.')
-except subprocess.CalledProcessError as e:
-    print(f'Gagal mengubah izin file {file_name}. Error: {e}')
     
 
 # Always active until it stopped
