@@ -118,7 +118,7 @@ class Database:
                         )''')
         
         self.conn.commit()
-        # self.dumpSQL()
+        self.dumpSQL()
         self.conn.close()
 
     # Add new data
@@ -128,7 +128,7 @@ class Database:
         # print(query)
         self.conn.execute(query, values)
         self.conn.commit()
-        # self.dumpSQL()
+        self.dumpSQL()
         self.conn.close()
 
     # Read existed data
@@ -142,7 +142,7 @@ class Database:
         else:
             self.cursor.execute(query)
         rows = self.cursor.fetchall()
-        # self.dumpSQL()
+        self.dumpSQL()
         self.conn.close()
         return rows
 
@@ -157,7 +157,7 @@ class Database:
         else:
             self.conn.execute(query, values)
         self.conn.commit()
-        # self.dumpSQL()
+        self.dumpSQL()
         self.conn.close()
 
     # Detele existed data
@@ -170,11 +170,10 @@ class Database:
         else:
             self.conn.execute(query)
         self.conn.commit()
-        # self.dumpSQL()
+        self.dumpSQL()
         self.conn.close()
 
-    # Dumping sql database as txt
     def dumpSQL(self):
         with open('db_autobot.txt', 'w') as f:
             for line in self.conn.iterdump():
-                f.write('%s\n' % line.encode("utf-8"))
+                f.write('%s\n' % line)
